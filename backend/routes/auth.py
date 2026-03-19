@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, session
+from database import get_db, DATABASE_URL
 import hashlib
 import re
 from database import get_db
@@ -20,7 +21,6 @@ def register():
     email    = data.get('email', '').strip()
     password = data.get('password', '')
 
-    # 基本校验
     if not username or not email or not password:
         return jsonify({'error': '所有字段不能为空'}), 400
     if not is_valid_email(email):
@@ -30,14 +30,22 @@ def register():
 
     conn = get_db()
     try:
-        conn.execute(
-            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-            (username, email, hash_password(password))
-        )
+        if DATABASE_URL:
+            cursor = conn.cursor()
+            cursor.execute(
+                'INSERT INTO users (username, email, password) VALUES (%s, %s, %s)',
+                (username, email, hash_password(password))
+            )
+            cursor.close()
+        else:
+            conn.execute(
+                'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+                (username, email, hash_password(password))
+            )
         conn.commit()
         return jsonify({'message': '注册成功'}), 201
-    except Exception:
-        # UNIQUE 约束冲突：用户名或邮箱已存在
+    except Exception as e:
+        print(f"Register error: {e}")
         return jsonify({'error': '用户名或邮箱已被使用'}), 409
     finally:
         conn.close()
