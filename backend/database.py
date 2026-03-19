@@ -1,44 +1,69 @@
-import sqlite3
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'meals.db')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
-    """每次请求获取一个数据库连接"""
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row  # 让查询结果可以用列名访问，如 row['email']
+    if DATABASE_URL:
+        import psycopg2
+        import psycopg2.extras
+        conn = psycopg2.connect(DATABASE_URL)
+        conn.cursor_factory = psycopg2.extras.RealDictCursor
+    else:
+        import sqlite3
+        conn = sqlite3.connect('meals.db')
+        conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    """启动时创建表(if not exists)"""
     conn = get_db()
-    cursor = conn.cursor()
 
-    # 用户表
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT    NOT NULL UNIQUE,
-            email    TEXT    NOT NULL UNIQUE,
-            password TEXT    NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    if DATABASE_URL:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id         SERIAL PRIMARY KEY,
+                username   TEXT NOT NULL UNIQUE,
+                email      TEXT NOT NULL UNIQUE,
+                password   TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS meals (
+                id         SERIAL PRIMARY KEY,
+                user_id    INTEGER NOT NULL REFERENCES users(id),
+                title      TEXT NOT NULL,
+                type       TEXT NOT NULL,
+                meal_time  TEXT NOT NULL,
+                includes   TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.commit()
+        cursor.close()
+    else:
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                username   TEXT NOT NULL UNIQUE,
+                email      TEXT NOT NULL UNIQUE,
+                password   TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS meals (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
+                title      TEXT NOT NULL,
+                type       TEXT NOT NULL,
+                meal_time  TEXT NOT NULL,
+                includes   TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+        conn.commit()
 
-    # 饮食记录表
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS meals (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id    INTEGER NOT NULL,
-            title      TEXT    NOT NULL,
-            type       TEXT    NOT NULL,
-            meal_time  TEXT    NOT NULL,
-            includes   TEXT    NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        )
-    ''')
-
-    conn.commit()
     conn.close()
     print("✅ Database ready")
