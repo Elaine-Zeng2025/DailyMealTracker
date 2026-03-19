@@ -1,6 +1,6 @@
 // ==================== 配置 ====================
 // 本地开发用 localhost，部署后换成 Railway 域名
-const API_BASE = 'https://piecebypeas.onrender.com';
+const API_BASE = 'https://piecebypeas.onrender.com/api';
 
 // ==================== API 工具函数 ====================
 
