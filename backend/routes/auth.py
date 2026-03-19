@@ -80,3 +80,13 @@ def me():
     if 'user_id' not in session:
         return jsonify({'error': '未登录'}), 401
     return jsonify({'user_id': session['user_id'], 'username': session['username']})
+
+# ── 暂时用于查看已有用户 ───────────────────────────────
+@auth_bp.route('/admin/users', methods=['GET'])
+def admin_users():
+    conn = get_db()
+    users = conn.execute(
+        'SELECT id, username, email, created_at FROM users'
+    ).fetchall()
+    conn.close()
+    return jsonify([dict(u) for u in users])
