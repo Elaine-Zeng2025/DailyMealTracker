@@ -25,6 +25,7 @@ def init_db():
                 username   TEXT NOT NULL UNIQUE,
                 email      TEXT NOT NULL UNIQUE,
                 password   TEXT NOT NULL,
+                tags       TEXT NOT NULL DEFAULT '[]',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -36,6 +37,7 @@ def init_db():
                 type       TEXT NOT NULL,
                 meal_time  TEXT NOT NULL,
                 includes   TEXT NOT NULL,
+                tags       TEXT NOT NULL DEFAULT '[]',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -48,6 +50,7 @@ def init_db():
                 username   TEXT NOT NULL UNIQUE,
                 email      TEXT NOT NULL UNIQUE,
                 password   TEXT NOT NULL,
+                tags       TEXT NOT NULL DEFAULT '[]',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         ''')
@@ -59,6 +62,7 @@ def init_db():
                 type       TEXT NOT NULL,
                 meal_time  TEXT NOT NULL,
                 includes   TEXT NOT NULL,
+                tags       TEXT NOT NULL DEFAULT '[]',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )

@@ -34,6 +34,7 @@ def add_meal():
     meal_type = data.get('type', '')
     meal_time = data.get('time', '')
     includes  = data.get('includes', [])
+    tags      = data.get('tags', [])
 
     if not title or not meal_type or not meal_time:
         return jsonify({'error': 'Title, type, and time cannot be empty'}), 400
@@ -43,6 +44,7 @@ def add_meal():
 # 过滤非法的食物分类，并把数组序列化为 JSON 字符串存入数据库
     valid_includes = [i for i in includes if i in VALID_INCLUDES]
     includes_str = json.dumps(valid_includes)
+    tags_str = json.dumps(tags)  
 
     conn = get_db()
     cursor = db_execute(conn,
@@ -84,6 +86,7 @@ def get_meals():
             'type':       row['type'],
             'time':       row['meal_time'],
             'includes':   json.loads(row['includes']),
+            'tags':       json.loads(row['tags']),
             'created_at': str(row['created_at'])
         })
     return jsonify(meals)
@@ -106,3 +109,35 @@ def delete_meal(meal_id):
     if affected == 0:
         return jsonify({'error': 'Record does not exist or you are not the owner'}), 404
     return jsonify({'message': 'Deleted successfully'})
+
+# ── 编辑一条记录 ───────────────────────────────
+@meals_bp.route('/<int:meal_id>', methods=['PUT'])
+@login_required
+def update_meal(meal_id):
+    data = request.get_json()
+    title     = data.get('title', '').strip()
+    meal_type = data.get('type', '')
+    meal_time = data.get('time', '')
+    includes  = data.get('includes', [])
+    tags      = data.get('tags', [])
+
+    if not title or not meal_type or not meal_time:
+        return jsonify({'error': '标题、类型、时间不能为空'}), 400
+
+    valid_includes = [i for i in includes if i in VALID_INCLUDES]
+    includes_str = json.dumps(valid_includes)
+    tags_str = json.dumps(tags)
+
+    conn = get_db()
+    cursor = db_execute(conn,
+        'UPDATE meals SET title=?, type=?, meal_time=?, includes=?, tags=? WHERE id=? AND user_id=?',
+        (title, meal_type, meal_time, includes_str, tags_str, meal_id, session['user_id'])
+    )
+    conn.commit()
+    affected = cursor.rowcount
+    if DATABASE_URL: cursor.close()
+    conn.close()
+
+    if affected == 0:
+        return jsonify({'error': '记录不存在或无权修改'}), 404
+    return jsonify({'message': '已更新'})
