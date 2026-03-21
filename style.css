@@ -51,12 +51,14 @@ body {
   max-width: 460px;
   padding: 1.5rem;
   position: relative;
+  overflow: visible;
 }
 
 .login-bea {
   position: absolute;
-  top: -80px;
-  right: -10px;
+  top: -45px;
+  z-index: 10;
+  right: -2px;
   width: 110px;
   pointer-events: none;
 }
@@ -66,6 +68,7 @@ body {
   border-radius: var(--radius);
   padding: 2.5rem 2rem 2rem;
   position: relative;
+  overflow: visible;
 }
 
 .login-logo {
@@ -419,6 +422,7 @@ body {
   border-radius: var(--radius);
   padding: 2rem 2rem 2.5rem;
   max-width: 700px;
+  position: relative;
 }
 
 .page-title {
@@ -575,6 +579,7 @@ body {
   border-radius: var(--radius);
   padding: 1.5rem 2rem;
   max-width: 720px;
+  position: relative;
 }
 
 .date-nav {
@@ -798,6 +803,7 @@ body {
   border-radius: var(--radius);
   padding: 1.5rem 2rem 2rem;
   max-width: 760px;
+  position: relative;
 }
 
 .period-tabs {
@@ -981,7 +987,24 @@ body {
     justify-content: space-around;
   }
 
-  .nav-user { display: none; }
+  .nav-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    border: none;
+    margin: 0;
+  }
+  
+  .nav-user-name {
+    display: none;  /* 手机上隐藏文字，只留图标 */
+  }
+  
+  .nav-user svg {
+    fill: rgba(255,255,255,0.75);
+    width: 22px;
+    height: 22px;
+  }
 
   .nav-items {
     flex-direction: row;
@@ -1024,3 +1047,15 @@ body {
 }
 .btn-edit-sm:hover { background: #d8f0d8; }
 .btn-edit-sm svg { stroke: #628A6B; }
+
+
+/* Bea 在内层 wrap 里时的定位 */
+.add-wrap .page-bea,
+.log-wrap .page-bea,
+.report-wrap .page-bea {
+  position: absolute;
+  width: 110px;
+  top: -70px;
+  right: 1.5rem;
+  z-index: 10;
+}
