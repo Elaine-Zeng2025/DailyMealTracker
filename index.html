@@ -5,31 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Piece By Peas</title>
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body>
-
-<script src="navbar.js"></script>
-
-<!-- Main content -->
-<div class="main-content">
-  <div class="page-wrap">
-    <img src="Bea.png" alt="Bea" class="page-bea">
-    <div class="page-logo">PIECE BY PEAS</div>
-
-    <!-- INDEX CONTENT -->
-    <div class="home-hero">
-      <h1 class="main-title" id="homeGreeting"></h1>
-    </div>
-    <div class="home-cards">
-      <div class="home-cards-row">
-        <button class="home-card" onclick="location.href='add.html'">Add Meal</button>
-        <button class="home-card" onclick="location.href='log.html'">View Log</button>
+  <script src="navbar.js"></script>
+  <div class="main-content">
+    <div class="page-wrap">
+      <div class="page-logo">PIECE BY PEAS</div>
+      <div class="home-hero">
+        <h1 class="main-title" id="homeGreeting">How was your meal today?</h1>
       </div>
-      <button class="home-card" onclick="location.href='report.html'">Report</button>
+      <div class="home-cards">
+        <button class="home-card" onclick="location.href='add.html'" data-i18n="add_meal">Add Meal</button>
+        <div class="home-cards-row">
+          <button class="home-card" onclick="location.href='log.html'" data-i18n="view_log">View Log</button>
+          <button class="home-card" onclick="location.href='report.html'" data-i18n="report">Report</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

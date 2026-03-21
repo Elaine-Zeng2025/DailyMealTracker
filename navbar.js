@@ -58,7 +58,7 @@
           <div class="user-dropdown" id="userDropdown">
             <div class="dropdown-email" id="dropdownEmail">—</div>
             <button class="dropdown-item" onclick="NavBar.openProfile()">Edit profile</button>
-            <button class="dropdown-item" onclick="NavBar.toggleLanguage()">Language (English)</button>
+            <button class="dropdown-item" id="langToggleBtn" onclick="toggleLanguage()">中文</button>
             <button class="dropdown-item logout" onclick="NavBar.logout()">Log out</button>
           </div>
         </div>

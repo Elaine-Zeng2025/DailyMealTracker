@@ -3,83 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piece By Peas - Report</title>
+  <title>Piece By Peas – Report</title>
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body>
-
-<script src="navbar.js"></script>
-
-<div class="main-content">
-  <div class="page-wrap">
-    <div class="page-logo">PIECE BY PEAS</div>
-
-    <div class="report-wrap">
-       <img src="Bea.png" alt="Bea" class="page-bea">
-      <!-- Period selector -->
-      <div class="period-tabs">
-        <button class="period-tab" id="tabMonth" onclick="setPeriod('month')">This Month</button>
-        <button class="period-tab active" id="tabWeek" onclick="setPeriod('week')">This Week</button>
-        <button class="period-tab" id="tabCustom" onclick="setPeriod('custom')">Last 7 Days</button>
-      </div>
-      <div class="period-range" id="periodRange"></div>
-
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Days covered this week</div>
-          <div class="stat-value" id="statDays">—</div>
+  <script src="navbar.js"></script>
+  <div class="main-content">
+    <div class="page-wrap">
+      <div class="page-logo">PIECE BY PEAS</div>
+      <div class="report-wrap">
+        <img src="Bea.png" alt="Bea" class="page-bea">
+        <div class="period-tabs">
+          <button class="period-tab" id="tabMonth" onclick="setPeriod('month')" data-i18n="this_month">This Month</button>
+          <button class="period-tab active" id="tabWeek" onclick="setPeriod('week')" data-i18n="this_week">This Week</button>
+          <button class="period-tab" id="tabCustom" onclick="setPeriod('custom')" data-i18n="last_7">Last 7 Days</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Average meals per day</div>
-          <div class="stat-value" id="statAvg">—</div>
+        <div class="period-range" id="periodRange"></div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label" data-i18n="days_covered">Days covered</div><div class="stat-value" id="statDays">—</div></div>
+          <div class="stat-card"><div class="stat-label" data-i18n="avg_meals">Avg meals / day</div><div class="stat-value" id="statAvg">—</div></div>
+          <div class="stat-card"><div class="stat-label" data-i18n="most_consumed">Most consumed</div><div class="stat-value" id="statTop">—</div></div>
+          <div class="stat-card"><div class="stat-label" data-i18n="most_missing">Most missing</div><div class="stat-value warning" id="statMissing">—</div></div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Most commonly consumed</div>
-          <div class="stat-value" id="statTop">—</div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#f0945d"></div>Grains</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#EF82A0"></div>Protein</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6bb392"></div>Vegetables</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffd970"></div>Fruits</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#88abda"></div>Dairy</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#dcc7e1"></div>Snacks</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Most commonly missing</div>
-          <div class="stat-value warning" id="statMissing">—</div>
+        <div class="chart-block">
+          <div class="chart-title" id="barTitle">Daily food group coverage</div>
+          <div style="position:relative;width:100%;height:200px"><canvas id="barChart"></canvas></div>
         </div>
-      </div>
-
-      <!-- Legend -->
-      <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#f0945d"></div>Grains</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#EF82A0"></div>Protein</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#6bb392"></div>Vegetables</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#ffd970"></div>Fruits</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#88abda"></div>Dairy</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#dcc7e1"></div>Snacks</div>
-      </div>
-
-      <!-- Charts -->
-      <div class="chart-block">
-        <div class="chart-title" id="barTitle">Daily food group coverage</div>
-        <div style="position:relative;width:100%;height:200px">
-          <canvas id="barChart"></canvas>
+        <div class="chart-block">
+          <div class="chart-title">Nutrition coverage radar</div>
+          <div style="position:relative;width:100%;height:220px"><canvas id="radarChart"></canvas></div>
         </div>
-      </div>
-
-      <div class="chart-block">
-        <div class="chart-title">Nutrition coverage radar</div>
-        <div style="position:relative;width:100%;height:220px">
-          <canvas id="radarChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-block">
-        <div class="chart-title">Meal type distribution</div>
-        <div style="position:relative;width:100%;height:180px">
-          <canvas id="donutChart"></canvas>
+        <div class="chart-block">
+          <div class="chart-title">Meal type distribution</div>
+          <div style="position:relative;width:100%;height:180px"><canvas id="donutChart"></canvas></div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

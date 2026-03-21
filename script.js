@@ -1,6 +1,3 @@
-// ══════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════
 const API_BASE = window.location.hostname === 'localhost'
   ? '/api'
   : 'https://piecebypeas.onrender.com/api';
@@ -22,7 +19,6 @@ async function checkAuth() {
   }
 }
 
-// ── TAG SELECT ──
 function initTagSelect() {
   document.querySelectorAll('.tag-option').forEach(btn => {
     btn.addEventListener('click', () => btn.classList.toggle('selected'));
@@ -33,8 +29,6 @@ function getSelectedTags() {
   return [...document.querySelectorAll('.tag-option.selected')].map(b => b.dataset.tag);
 }
 
-// ── DATE HELPERS ──
-// Safely parse both "2026-03-20T14:52:49" and "2026-03-20 14:52:49"
 function parseDate(str) {
   if (!str) return null;
   return new Date(str.replace(' ', 'T'));
@@ -42,7 +36,7 @@ function parseDate(str) {
 
 function getDateStr(str) {
   if (!str) return null;
-  return str.substring(0, 10); // always "YYYY-MM-DD"
+  return str.substring(0, 10);
 }
 
 // ══════════════════════════════════════
@@ -50,10 +44,11 @@ function getDateStr(str) {
 // ══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
   const path = window.location.pathname;
-  if (path.includes('login.html') || (path.endsWith('login') )) { initLoginPage(); return; }
-  if (path.includes('register')) { initRegisterPage(); return; }
+  if (path.includes('login.html') || path.endsWith('login')) { initLoginPage(); applyLanguage(); return; }
+  if (path.includes('register')) { initRegisterPage(); applyLanguage(); return; }
   checkAuth().then(() => {
     NavBar.updateGreeting();
+    applyLanguage();
     if (path.includes('add'))    initAddPage();
     if (path.includes('log'))    initLogPage();
     if (path.includes('report')) initReportPage();
@@ -97,7 +92,7 @@ function initRegisterPage() {
     const password = document.getElementById('regPassword').value;
     const { ok, data } = await apiFetch('/auth/register', { method: 'POST', body: JSON.stringify({ username, email, password }) });
     if (ok) {
-      showNotification('Account created! Please log in.', 'success');
+      showNotification(typeof t === 'function' ? t('account_created') : 'Account created! Please log in.', 'success');
       setTimeout(() => { window.location.href = 'login.html'; }, 1200);
     } else {
       alert(data.error || 'Registration failed.');
@@ -112,9 +107,15 @@ function initHomePage() {
   const el = document.getElementById('homeGreeting');
   if (!el) return;
   const h = new Date().getHours();
-  if (h < 12) el.textContent = 'Good morning! Ready for breakfast?';
-  else if (h < 17) el.textContent = 'Good afternoon! Time for lunch?';
-  else el.textContent = "Good evening! What's for dinner?";
+  if (typeof t === 'function') {
+    if (h < 12) el.textContent = t('greeting_morning');
+    else if (h < 17) el.textContent = t('greeting_afternoon');
+    else el.textContent = t('greeting_evening');
+  } else {
+    if (h < 12) el.textContent = 'Good morning! Ready for breakfast?';
+    else if (h < 17) el.textContent = 'Good afternoon! Time for lunch?';
+    else el.textContent = "Good evening! What's for dinner?";
+  }
 }
 
 // ══════════════════════════════════════
@@ -128,7 +129,6 @@ function initAddPage() {
     timeInput.value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   }
 
-  // Check edit mode
   const editingMeal = sessionStorage.getItem('editingMeal');
   if (editingMeal) {
     const meal = JSON.parse(editingMeal);
@@ -142,16 +142,15 @@ function initAddPage() {
       const cb = document.getElementById(g);
       if (cb) cb.checked = true;
     });
-    // restore tags
     setTimeout(() => {
-      (meal.tags || []).forEach(t => {
+      (meal.tags || []).forEach(tag => {
         document.querySelectorAll('.tag-option').forEach(btn => {
-          if (btn.dataset.tag === t) btn.classList.add('selected');
+          if (btn.dataset.tag === tag) btn.classList.add('selected');
         });
       });
     }, 50);
-    const submitBtn = document.querySelector('#mealForm .btn-primary');
-    if (submitBtn) submitBtn.textContent = 'Update';
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) submitBtn.textContent = typeof t === 'function' ? t('update') : 'Update';
   }
 
   const form = document.getElementById('mealForm');
@@ -167,13 +166,10 @@ function initAddPage() {
     if (!title || !type || !time) { alert('Please fill in all required fields'); return; }
     if (includes.length === 0) { alert('Please select at least one food group'); return; }
 
-    const editingMeal = sessionStorage.getItem('editingMeal');
-    if (editingMeal) {
-      const old = JSON.parse(editingMeal);
-      const { ok, data } = await apiFetch(`/meals/${old.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ title, type, time, includes, tags })
-      });
+    const editing = sessionStorage.getItem('editingMeal');
+    if (editing) {
+      const old = JSON.parse(editing);
+      const { ok, data } = await apiFetch(`/meals/${old.id}`, { method: 'PUT', body: JSON.stringify({ title, type, time, includes, tags }) });
       if (ok) {
         sessionStorage.removeItem('editingMeal');
         showNotification('Meal updated!', 'success');
@@ -192,11 +188,12 @@ function initAddPage() {
     }
   });
 
-  const cancelBtn = document.querySelector('#mealForm .btn-secondary');
+  const cancelBtn = document.getElementById('cancelBtn');
   if (cancelBtn) cancelBtn.onclick = () => {
     sessionStorage.removeItem('editingMeal');
     window.location.href = 'log.html';
   };
+  applyLanguage();
 }
 
 // ══════════════════════════════════════
@@ -235,8 +232,14 @@ function updateDateDisplay() {
   const mainEl = document.getElementById('dateMain');
   const subEl = document.getElementById('dateSub');
   const nextBtn = document.getElementById('nextDayBtn');
-  if (mainEl) mainEl.textContent = isToday ? 'Today' : isYesterday ? 'Yesterday' : d.toLocaleDateString('en-US', { weekday: 'long' });
-  if (subEl) subEl.textContent = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const lang = typeof getLang === 'function' ? getLang() : 'en';
+  const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
+  if (mainEl) {
+    if (isToday) mainEl.textContent = typeof t === 'function' ? t('today') : 'Today';
+    else if (isYesterday) mainEl.textContent = typeof t === 'function' ? t('yesterday') : 'Yesterday';
+    else mainEl.textContent = d.toLocaleDateString(locale, { weekday: 'long' });
+  }
+  if (subEl) subEl.textContent = d.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' });
   if (nextBtn) nextBtn.disabled = logOffset >= 0;
 }
 
@@ -266,12 +269,15 @@ function renderToday() {
   const countEl = document.getElementById('todayCount');
   const listEl = document.getElementById('mealList');
   const sugEl = document.getElementById('suggestionsBox');
+  const recorded = typeof t === 'function' ? t('meals_recorded') : 'meals recorded';
 
-  if (countEl) countEl.textContent = meals.length ? `${meals.length} meal${meals.length > 1 ? 's' : ''} recorded` : '';
+  if (countEl) countEl.textContent = meals.length ? `${meals.length} ${recorded}` : '';
   if (!listEl) return;
 
   if (meals.length === 0) {
-    listEl.innerHTML = `<div class="empty-state"><p>No meals recorded yet</p><button class="btn-primary" onclick="location.href='add.html'">Add your first meal</button></div>`;
+    const noMeals = typeof t === 'function' ? t('no_meals') : 'No meals recorded yet';
+    const addFirst = typeof t === 'function' ? t('add_first') : 'Add your first meal';
+    listEl.innerHTML = `<div class="empty-state"><p>${noMeals}</p><button class="btn-primary" onclick="location.href='add.html'">${addFirst}</button></div>`;
     if (sugEl) sugEl.innerHTML = '';
     return;
   }
@@ -281,10 +287,12 @@ function renderToday() {
   listEl.innerHTML = meals.map(meal => {
     const tags = Array.isArray(meal.tags) ? meal.tags : (typeof meal.tags === 'string' ? JSON.parse(meal.tags || '[]') : []);
     const dots = (meal.includes || []).map(g => `<span class="food-dot ${g}" title="${g}"></span>`).join('');
-    const tagPills = tags.map(t => {
-      const cls = t === 'diet' ? 'pill-diet' : t === 'cheat' ? 'pill-cheat' : 'pill-type';
-      return `<span class="pill ${cls}">${capitalize(t)} meal</span>`;
+    const tagPills = tags.map(tag => {
+      const cls = tag === 'diet' ? 'pill-diet' : tag === 'cheat' ? 'pill-cheat' : 'pill-type';
+      const label = typeof t === 'function' ? t('tag_' + tag) : capitalize(tag) + ' meal';
+      return `<span class="pill ${cls}">${label}</span>`;
     }).join('');
+    const typeLabel = typeof t === 'function' ? t(meal.type) : capitalize(meal.type);
 
     return `<div class="meal-card">
       <div class="meal-card-top">
@@ -292,7 +300,7 @@ function renderToday() {
         <span class="meal-card-time">${formatTime(meal.time)}</span>
       </div>
       <div class="meal-card-meta">
-        <span class="pill pill-type">${capitalize(meal.type)}</span>
+        <span class="pill pill-type">${typeLabel}</span>
         ${tagPills}
         <div class="food-dots">${dots}</div>
       </div>
@@ -319,33 +327,39 @@ function renderToday() {
 function renderHistory() {
   const listEl = document.getElementById('historyList');
   if (!listEl) return;
+  const lang = typeof getLang === 'function' ? getLang() : 'en';
+  const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
 
   const grouped = {};
   allMeals.forEach(m => {
-    const d = getDateStr(m.created_at); // always "YYYY-MM-DD"
+    const d = getDateStr(m.created_at);
     if (!d) return;
     if (!grouped[d]) grouped[d] = [];
     grouped[d].push(m);
   });
 
   const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-  if (dates.length === 0) { listEl.innerHTML = '<div class="empty-state"><p>No history yet</p></div>'; return; }
+  if (dates.length === 0) {
+    listEl.innerHTML = `<div class="empty-state"><p>${typeof t === 'function' ? t('no_meals') : 'No history yet'}</p></div>`;
+    return;
+  }
 
   listEl.innerHTML = dates.map(date => {
     const meals = grouped[date];
     const groups = [...new Set(meals.flatMap(m => m.includes || []))];
     const dots = groups.map(g => `<span class="food-dot ${g}"></span>`).join('');
-    // Parse date safely: add T12:00:00 to avoid timezone shift
     const d = new Date(date + 'T12:00:00');
-    const label = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    const label = d.toLocaleDateString(locale, { month: 'long', day: 'numeric' });
+    const mealWord = lang === 'zh' ? `${meals.length} 餐` : `${meals.length} meal${meals.length > 1 ? 's' : ''}`;
+    const groupsText = lang === 'zh' ? `${groups.length} / 6 类` : `${groups.length} / 6 groups`;
     return `<div class="history-card" onclick="jumpToDate('${date}')">
       <div class="history-card-top">
         <span class="history-date">${label}</span>
-        <span class="history-count">${meals.length} meal${meals.length > 1 ? 's' : ''}</span>
+        <span class="history-count">${mealWord}</span>
       </div>
       <div style="display:flex;align-items:center;gap:4px">
         <div class="food-dots">${dots}</div>
-        <span class="history-groups">${groups.length} / 6 groups${groups.length === 6 ? ' ✓' : ''}</span>
+        <span class="history-groups">${groupsText}${groups.length === 6 ? ' ✓' : ''}</span>
       </div>
     </div>`;
   }).join('');
@@ -364,17 +378,23 @@ function buildSuggestions(meals) {
   const all = ['grains','protein','vegetables','fruits','dairy','snacks'];
   const consumed = new Set(meals.flatMap(m => m.includes || []));
   const missing = all.filter(g => !consumed.has(g));
-  if (missing.length === 0) return `<div class="suggestions-box"><div class="suggestions-title">Today's suggestions</div><p style="font-size:.85rem;color:var(--text-mid)">You've covered all food groups today! 🎉</p></div>`;
+  const title = typeof t === 'function' ? t('suggestions_title') : "Today's suggestions";
+
+  if (missing.length === 0) {
+    const allGood = typeof t === 'function' ? t('all_groups') : "You've covered all food groups today! 🎉";
+    return `<div class="suggestions-box"><div class="suggestions-title">${title}</div><p style="font-size:.85rem;color:var(--text-mid)">${allGood}</p></div>`;
+  }
+
   const tips = {
-    grains: 'Try adding rice, bread, or oatmeal to your next meal.',
-    protein: 'Consider eggs, chicken, beans, or tofu.',
-    vegetables: 'Sneak in some leafy greens, carrots, or bell peppers.',
-    fruits: 'Grab an apple, banana, or a handful of berries.',
-    dairy: 'A glass of milk or some yogurt would round things out.',
-    snacks: 'A small healthy snack like nuts could help.'
+    grains:     typeof t === 'function' ? t('tip_grains')     : 'Try adding rice, bread, or oatmeal to your next meal.',
+    protein:    typeof t === 'function' ? t('tip_protein')    : 'Consider eggs, chicken, beans, or tofu.',
+    vegetables: typeof t === 'function' ? t('tip_vegetables') : 'Sneak in some leafy greens, carrots, or bell peppers.',
+    fruits:     typeof t === 'function' ? t('tip_fruits')     : 'Grab an apple, banana, or a handful of berries.',
+    dairy:      typeof t === 'function' ? t('tip_dairy')      : 'A glass of milk or some yogurt would round things out.',
+    snacks:     typeof t === 'function' ? t('tip_snacks')     : 'A small healthy snack like nuts could help.'
   };
   const items = missing.map(g => `<div class="suggestion-item"><span class="suggestion-dot"></span><span>${tips[g]}</span></div>`).join('');
-  return `<div class="suggestions-box"><div class="suggestions-title">Today's suggestions</div>${items}</div>`;
+  return `<div class="suggestions-box"><div class="suggestions-title">${title}</div>${items}</div>`;
 }
 
 function editMeal(id) {
@@ -433,15 +453,13 @@ function filterByPeriod(meals, period) {
     start = new Date(now); start.setDate(now.getDate() - 6); start.setHours(0,0,0,0);
     end = new Date(now); end.setHours(23,59,59,999);
   }
-  const filtered = meals.filter(m => {
-    const d = parseDate(m.created_at);
-    return d && d >= start && d <= end;
-  });
-  return { start, end, meals: filtered };
+  return { start, end, meals: meals.filter(m => { const d = parseDate(m.created_at); return d && d >= start && d <= end; }) };
 }
 
 function updatePeriodRange(start, end) {
-  const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const lang = typeof getLang === 'function' ? getLang() : 'en';
+  const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
+  const fmt = d => d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
   const el = document.getElementById('periodRange');
   if (el) el.textContent = `[${fmt(start)} ~ ${fmt(end)}]`;
 }
@@ -453,25 +471,44 @@ function updateStats(meals, start, end) {
   const counts = Object.fromEntries(GROUPS.map(g => [g, 0]));
   meals.forEach(m => (m.includes || []).forEach(g => counts[g]++));
   const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  const lang = typeof getLang === 'function' ? getLang() : 'en';
+
+  const foodNames = {
+    en: { grains:'Grains', protein:'Protein', vegetables:'Vegetables', fruits:'Fruits', dairy:'Dairy', snacks:'Snacks' },
+    zh: { grains:'谷物', protein:'蛋白质', vegetables:'蔬菜', fruits:'水果', dairy:'乳制品', snacks:'零食' }
+  };
+  const names = foodNames[lang] || foodNames.en;
+
+  document.getElementById('statDays')?.setAttribute('textContent', '');
   const statDays = document.getElementById('statDays');
   const statAvg = document.getElementById('statAvg');
   const statTop = document.getElementById('statTop');
   const statMissing = document.getElementById('statMissing');
   if (statDays) statDays.textContent = `${daysWithMeals} / ${days}`;
   if (statAvg) statAvg.textContent = avg.toFixed(1);
-  if (statTop) statTop.textContent = sorted[0][1] > 0 ? capitalize(sorted[0][0]) : '—';
-  if (statMissing) statMissing.textContent = sorted[sorted.length-1][1] === 0 ? capitalize(sorted[sorted.length-1][0]) : '—';
+  if (statTop) statTop.textContent = sorted[0][1] > 0 ? names[sorted[0][0]] : '—';
+  if (statMissing) statMissing.textContent = sorted[sorted.length-1][1] === 0 ? names[sorted[sorted.length-1][0]] : '—';
 }
 
 function drawCharts(meals, start, end) {
+  const lang = typeof getLang === 'function' ? getLang() : 'en';
+  const locale = lang === 'zh' ? 'zh-CN' : 'en-US';
   const days = [];
   const d = new Date(start);
   while (d <= end) { days.push(new Date(d)); d.setDate(d.getDate() + 1); }
-  const labels = days.map(d => d.toLocaleDateString('en-US', { weekday: 'short' }));
+  const labels = days.map(d => d.toLocaleDateString(locale, { weekday: 'short' }));
+
+  const chartLabels = lang === 'zh'
+    ? ['谷物','蛋白质','蔬菜','水果','乳制品','零食']
+    : LABELS;
+
   const datasets = GROUPS.map((g, i) => ({
-    label: LABELS[i],
+    label: chartLabels[i],
     data: days.map(day => {
-      const s = day.toISOString().split('T')[0];
+      const year  = day.getFullYear();
+      const month = String(day.getMonth() + 1).padStart(2, '0');
+      const dd    = String(day.getDate()).padStart(2, '0');
+      const s = `${year}-${month}-${dd}`;
       return meals.some(m => getDateStr(m.created_at) === s && (m.includes||[]).includes(g)) ? 1 : 0;
     }),
     backgroundColor: COLORS[g], stack: 's'
@@ -487,15 +524,16 @@ function drawCharts(meals, start, end) {
   if (radarCtx && typeof Chart !== 'undefined') {
     if (radarChartInst) radarChartInst.destroy();
     const rc = GROUPS.map(g => meals.filter(m=>(m.includes||[]).includes(g)).length);
-    radarChartInst = new Chart(radarCtx, { type:'radar', data:{labels:LABELS,datasets:[{data:rc,backgroundColor:'rgba(98,138,107,0.2)',borderColor:'#628A6B',pointBackgroundColor:'#628A6B'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,ticks:{stepSize:1,font:{size:10}}}}} });
+    radarChartInst = new Chart(radarCtx, { type:'radar', data:{labels:chartLabels,datasets:[{data:rc,backgroundColor:'rgba(98,138,107,0.2)',borderColor:'#628A6B',pointBackgroundColor:'#628A6B'}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,ticks:{stepSize:1,font:{size:10}}}}} });
   }
 
   const donutCtx = document.getElementById('donutChart');
   if (donutCtx && typeof Chart !== 'undefined') {
     if (donutChartInst) donutChartInst.destroy();
     const types=['breakfast','lunch','dinner','brunch','snack'];
-    const dc = types.map(t=>meals.filter(m=>m.type===t).length);
-    donutChartInst = new Chart(donutCtx, { type:'doughnut', data:{labels:types.map(capitalize),datasets:[{data:dc,backgroundColor:['#ffd970','#88abda','#6bb392','#f0945d','#dcc7e1']}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}} });
+    const typeLabels = lang === 'zh' ? ['早餐','午餐','晚餐','早午餐','零食'] : types.map(capitalize);
+    const dc = types.map(tp=>meals.filter(m=>m.type===tp).length);
+    donutChartInst = new Chart(donutCtx, { type:'doughnut', data:{labels:typeLabels,datasets:[{data:dc,backgroundColor:['#ffd970','#88abda','#6bb392','#f0945d','#dcc7e1']}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}} });
   }
 }
 
