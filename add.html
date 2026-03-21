@@ -3,126 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piece By Peas - Add Meal</title>
+  <title>Piece By Peas – Add Meal</title>
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body>
-
-<script src="navbar.js"></script>
-
-<div class="modal-overlay" id="profileModal">
-  <div class="modal-card">
-    <p class="modal-title">Edit information</p>
-    <div class="modal-field"><label>Name</label><input type="text" id="profileName"></div>
-    <div class="modal-field"><label>Email</label><input type="email" id="profileEmail"></div>
-    <div class="modal-field"><label>New password</label><input type="password" id="profilePassword" placeholder="Leave blank to keep current"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeProfile()">Cancel</button>
-      <button class="btn-primary" onclick="saveProfile()">Save</button>
+  <script src="navbar.js"></script>
+  <div class="main-content">
+    <div class="page-wrap">
+      <div class="page-logo">PIECE BY PEAS</div>
+      <div class="add-wrap">
+        <img src="Bea.png" alt="Bea" class="page-bea">
+        <h2 class="page-title" data-i18n="add_title">ADD A MEAL</h2>
+        <form id="mealForm">
+          <div class="form-section">
+            <label class="form-label" data-i18n="title_label">Title:</label>
+            <input type="text" id="mealName" class="form-input" data-i18n="title_ph" placeholder="What did you eat?" required>
+          </div>
+          <div class="form-section">
+            <div class="form-row">
+              <div>
+                <label class="form-label" data-i18n="meal_type">This is your:</label>
+                <select id="mealType" class="form-select" required>
+                  <option value="" data-i18n="select_type">Select meal type</option>
+                  <option value="breakfast" data-i18n="breakfast">Breakfast</option>
+                  <option value="lunch" data-i18n="lunch">Lunch</option>
+                  <option value="dinner" data-i18n="dinner">Dinner</option>
+                  <option value="brunch" data-i18n="brunch">Brunch</option>
+                  <option value="snack" data-i18n="snack">Snack</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" data-i18n="meal_time">It was on:</label>
+                <input type="time" id="mealTime" class="form-input" required>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <label class="form-label" data-i18n="add_tag">Add a tag:</label>
+            <div class="tag-select" id="tagSelect">
+              <button type="button" class="tag-option" data-tag="diet" data-i18n="tag_diet">Diet meal</button>
+              <button type="button" class="tag-option" data-tag="cheat" data-i18n="tag_cheat">Cheat meal</button>
+              <button type="button" class="tag-option" data-tag="balanced" data-i18n="tag_balanced">Balanced</button>
+              <button type="button" class="tag-option" data-tag="light" data-i18n="tag_light">Light</button>
+            </div>
+          </div>
+          <div class="form-section">
+            <label class="form-label" data-i18n="included">Included:</label>
+            <div class="food-grid">
+              <div class="food-item"><input type="checkbox" id="grains" value="grains"><label for="grains" class="food-label grains"><div class="food-icon">🌾</div><span>Grains</span></label></div>
+              <div class="food-item"><input type="checkbox" id="protein" value="protein"><label for="protein" class="food-label protein"><div class="food-icon">🥩</div><span>Protein</span></label></div>
+              <div class="food-item"><input type="checkbox" id="vegetables" value="vegetables"><label for="vegetables" class="food-label vegetables"><div class="food-icon">🥬</div><span>Vegetables</span></label></div>
+              <div class="food-item"><input type="checkbox" id="fruits" value="fruits"><label for="fruits" class="food-label fruits"><div class="food-icon">🍎</div><span>Fruits</span></label></div>
+              <div class="food-item"><input type="checkbox" id="dairy" value="dairy"><label for="dairy" class="food-label dairy"><div class="food-icon">🥛</div><span>Dairy</span></label></div>
+              <div class="food-item"><input type="checkbox" id="snacks" value="snacks"><label for="snacks" class="food-label snacks"><div class="food-icon">🍪</div><span>Snacks</span></label></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancelBtn" data-i18n="cancel">Cancel</button>
+            <button type="submit" class="btn-primary" id="submitBtn" data-i18n="submit">Submit</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
-
-<div class="main-content">
-  <div class="page-wrap">
-    <div class="page-logo">PIECE BY PEAS</div>
-
-    <div class="add-wrap">
-      <img src="Bea.png" alt="Bea" class="page-bea">
-      <h2 class="page-title">ADD A MEAL</h2>
-      <form id="mealForm">
-        <div class="form-section">
-          <label class="form-label" for="mealName">Title:</label>
-          <input type="text" id="mealName" class="form-input" placeholder="What did you eat?" required>
-        </div>
-
-        <div class="form-section">
-          <div class="form-row">
-            <div>
-              <label class="form-label" for="mealType">This is your:</label>
-              <select id="mealType" class="form-select" required>
-                <option value="">Select meal type</option>
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="brunch">Brunch</option>
-                <option value="snack">Snack</option>
-              </select>
-            </div>
-            <div>
-              <label class="form-label" for="mealTime">It was on:</label>
-              <input type="time" id="mealTime" class="form-input" required>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <label class="form-label">Add a tag:</label>
-          <div class="tag-select" id="tagSelect">
-            <button type="button" class="tag-option" data-tag="diet">Diet meal</button>
-            <button type="button" class="tag-option" data-tag="cheat">Cheat meal</button>
-            <button type="button" class="tag-option" data-tag="balanced">Balanced</button>
-            <button type="button" class="tag-option" data-tag="light">Light</button>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <label class="form-label">Included:</label>
-          <div class="food-grid">
-            <div class="food-item">
-              <input type="checkbox" id="grains" value="grains">
-              <label for="grains" class="food-label grains">
-                <div class="food-icon">🌾</div>
-                <span>Grains</span>
-              </label>
-            </div>
-            <div class="food-item">
-              <input type="checkbox" id="protein" value="protein">
-              <label for="protein" class="food-label protein">
-                <div class="food-icon">🥩</div>
-                <span>Protein</span>
-              </label>
-            </div>
-            <div class="food-item">
-              <input type="checkbox" id="vegetables" value="vegetables">
-              <label for="vegetables" class="food-label vegetables">
-                <div class="food-icon">🥬</div>
-                <span>Vegetables</span>
-              </label>
-            </div>
-            <div class="food-item">
-              <input type="checkbox" id="fruits" value="fruits">
-              <label for="fruits" class="food-label fruits">
-                <div class="food-icon">🍎</div>
-                <span>Fruits</span>
-              </label>
-            </div>
-            <div class="food-item">
-              <input type="checkbox" id="dairy" value="dairy">
-              <label for="dairy" class="food-label dairy">
-                <div class="food-icon">🥛</div>
-                <span>Dairy</span>
-              </label>
-            </div>
-            <div class="food-item">
-              <input type="checkbox" id="snacks" value="snacks">
-              <label for="snacks" class="food-label snacks">
-                <div class="food-icon">🍪</div>
-                <span>Snacks</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="button" class="btn-secondary" onclick="location.href='index.html'">Cancel</button>
-          <button type="submit" class="btn-primary">Submit</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

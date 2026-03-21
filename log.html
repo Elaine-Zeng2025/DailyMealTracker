@@ -5,49 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Piece By Peas – Log</title>
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body>
-
-<script src="navbar.js"></script>
-
-<div class="main-content">
-  <div class="page-wrap">
-    <div class="page-logo">PIECE BY PEAS</div>
-
-    <div class="log-wrap">
-      <img src="Bea.png" alt="Bea" class="page-bea">
-      <!-- Date nav -->
-      <div class="date-nav">
-        <button class="date-nav-btn" id="prevDayBtn">&#8249;</button>
-        <div class="date-center">
-          <div class="date-main" id="dateMain">Today</div>
-          <div class="date-sub" id="dateSub"></div>
+  <script src="navbar.js"></script>
+  <div class="main-content">
+    <div class="page-wrap">
+      <div class="page-logo">PIECE BY PEAS</div>
+      <div class="log-wrap">
+        <img src="Bea.png" alt="Bea" class="page-bea">
+        <div class="date-nav">
+          <button class="date-nav-btn" id="prevDayBtn">&#8249;</button>
+          <div class="date-center">
+            <div class="date-main" id="dateMain">Today</div>
+            <div class="date-sub" id="dateSub"></div>
+          </div>
+          <button class="date-nav-btn" id="nextDayBtn" disabled>&#8250;</button>
         </div>
-        <button class="date-nav-btn" id="nextDayBtn" disabled>&#8250;</button>
-      </div>
-
-      <!-- Tabs -->
-      <div class="tab-row">
-        <button class="tab-btn active" id="tabToday" onclick="switchTab('today')">Today</button>
-        <button class="tab-btn" id="tabHistory" onclick="switchTab('history')">History</button>
-      </div>
-
-      <!-- Today view -->
-      <div id="todayView">
-        <p class="section-label" id="todayCount"></p>
-        <div id="mealList"></div>
-        <div id="suggestionsBox"></div>
-      </div>
-
-      <!-- History view -->
-      <div id="historyView" style="display:none">
-        <p class="section-label">Recent history</p>
-        <div id="historyList"></div>
+        <div class="tab-row">
+          <button class="tab-btn active" id="tabToday" onclick="switchTab('today')" data-i18n="today">Today</button>
+          <button class="tab-btn" id="tabHistory" onclick="switchTab('history')" data-i18n="history">History</button>
+        </div>
+        <div id="todayView">
+          <p class="section-label" id="todayCount"></p>
+          <div id="mealList"></div>
+          <div id="suggestionsBox"></div>
+        </div>
+        <div id="historyView" style="display:none">
+          <p class="section-label" data-i18n="recent_history">Recent history</p>
+          <div id="historyList"></div>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

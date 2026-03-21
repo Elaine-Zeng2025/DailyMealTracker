@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Piece By Peas – Sign Up</title>
   <link rel="stylesheet" href="style.css">
+  <script src="i18n.js"></script>
 </head>
 <body class="login-page">
   <div class="login-container">
@@ -13,19 +14,20 @@
       <div class="login-logo">PIECE BY PEAS</div>
       <form id="registerForm">
         <div class="input-group">
-          <input type="text" id="regUsername" placeholder="User name" required>
+          <input type="text" id="regUsername" data-i18n="username_label" placeholder="Username" required>
         </div>
         <div class="input-group">
           <input type="email" id="regEmail" placeholder="Email" required>
         </div>
         <div class="input-group">
-          <input type="password" id="regPassword" placeholder="Password" required>
+          <input type="password" id="regPassword" data-i18n="password_ph" placeholder="Password" required>
         </div>
-        <button type="submit" class="login-btn">Sign up</button>
+        <button type="submit" class="login-btn" data-i18n="signup_title">Sign up</button>
       </form>
-      <button class="signup-btn" onclick="location.href='login.html'">Back to Log in</button>
+      <button class="signup-btn" onclick="location.href='login.html'" data-i18n="back_to_login">Back to Log in</button>
     </div>
   </div>
   <script src="script.js"></script>
+  <script>applyLanguage();</script>
 </body>
 </html>
