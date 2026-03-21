@@ -995,6 +995,11 @@ body {
     border: none;
     margin: 0;
   }
+  .user-dropdown {
+    bottom: calc(100% + 4px);  /* 往上展开 */
+    top: auto;
+    left: 0;
+  }
   
   .nav-user-name {
     display: none;  /* 手机上隐藏文字，只留图标 */
