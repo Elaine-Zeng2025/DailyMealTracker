@@ -9,18 +9,15 @@ app = Flask(__name__, static_folder='..', static_url_path='')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 IS_PROD = os.environ.get('RAILWAY_ENVIRONMENT') == 'production'
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = IS_PROD
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 CORS(app, 
      supports_credentials=True,
      origins=['http://localhost:5000',
-               'http://localhost:5173', 
                'https://piecebypeas.onrender.com', 
-               'https://Elaine-Zeng2025.github.io', 
-               'https://piece-by-peas-vue-ofou.vercel.app', 
-               'https://piece-by-peas-3epsphq0g-elaine-zeng2025s-projects.vercel.app'])
+               'https://Elaine-Zeng2025.github.io'])
 
 init_db()
 
