@@ -9,8 +9,8 @@ app = Flask(__name__, static_folder='..', static_url_path='')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 IS_PROD = os.environ.get('RAILWAY_ENVIRONMENT') == 'production'
-app.config['SESSION_COOKIE_SECURE'] = IS_PROD
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 CORS(app, 
